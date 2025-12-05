@@ -1,28 +1,31 @@
 #ifndef FANS_CONTROLLER_MAINWINDOW_H
 #define FANS_CONTROLLER_MAINWINDOW_H
 
+#include <QAbstractButton>
 #include <QButtonGroup>
-#include <QFrame>
-#include <QLabel>
-#include <QMainWindow>
-#include <QSlider>
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QFrame>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMainWindow>
 #include <QPushButton>
 #include <QRect>
 #include <QScreen>
-#include <QShowEvent>
 #include <QScrollArea>
-#include <QStringList>
+#include <QShowEvent>
+#include <QSignalBlocker>
 #include <QSize>
+#include <QSlider>
+#include <QStringList>
 #include <QVBoxLayout>
 #include <QtGlobal>
+
+#include <algorithm>
 
 #include "main.h"
 #include "tuf_gaming_fx705ge.h"
@@ -58,6 +61,12 @@ class MainWindow : public QMainWindow {
   QWidget *createDetailLine(const QString &label, const QString &value,
                             const QString &severityProperty);
 
+  // Xu ly tuong tac preset va dong bo slider.
+  void handleModeSelected(int buttonId);
+  void applyPresetPercent(int percent);
+  void syncModeButtonForPercent(int percent);
+  void selectModeButton(const QString &modeName);
+
   // Xu ly stylesheet va can giua man hinh.
   void applyStyleSheet();
   QString resolveStylePath() const;
@@ -74,6 +83,7 @@ class MainWindow : public QMainWindow {
   QLabel *m_fixedSpeedValueLabel = nullptr;  // Hien thi % cua slider.
   QSlider *m_fixedSpeedSlider = nullptr;     // Dieu khien toc do co dinh.
   QButtonGroup *m_modeGroup = nullptr;       // Nhom nut chon che do quat.
+  bool m_updatingFromPreset = false;         // Co de bo qua set Custom khi set bang code.
 
   // Lop doc sensor/dieu khien quat tach rieng ra core/.
   TufGamingFx705ge m_device;
