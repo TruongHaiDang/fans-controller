@@ -4,9 +4,9 @@
 #include <QString>
 #include <QVector>
 
-// Luu tru thong tin sensor va dieu khien quat cho may ASUS TUF Gaming FX705GE.
-// Hien tai chi co du lieu gia lap de phuc vu UI. Khi co h/w va driver,
-// bo sung doc/ghi thuc su tu /sys/ hoac ASUS WMI tai cac ham ben duoi.
+// Doc thong tin sensor va dieu khien quat cho ASUS TUF Gaming FX705GE
+// thong qua cac file sysfs (hwmon/pwm) ma script asus_fan_report.sh da phat hien.
+// Neu khong doc/ghi duoc (quyen hoac thieu thiet bi), cac gia tri tra ve se la 0.
 class TufGamingFx705ge {
  public:
   // Mau du lieu nhiet do.
@@ -38,12 +38,29 @@ class TufGamingFx705ge {
   bool applyPresetMode(const QString &presetName);
 
  private:
-  void loadMockData();  // Tam thoi: du lieu minh hoa UI.
+  // Doc tu sysfs; neu that bai thi tra ve 0 an toan.
+  void loadFromSysfs();
+
+  // Du lieu gia lap an toan (0.0) khi khong doc duoc.
+  void loadMockData();
+
+  QString findHwmonByName(const QStringList &needles) const;
+  QVector<TemperatureSample> readTemps(const QString &hwmonPath) const;
+  int readFanRpm(const QString &hwmonPath) const;
+  int readPwmMax(const QString &hwmonPath) const;
+  int readPwmValue(const QString &hwmonPath) const;
+  bool writePwmValue(const QString &hwmonPath, int pwmValue) const;
+  bool writePwmEnableManual(const QString &hwmonPath) const;
+  QString readTextFile(const QString &path) const;
+  double parseTempMilli(const QString &raw) const;
 
   TemperatureSample m_cpuPackage;
   TemperatureSample m_pch;
   FanSample m_fan;
   QVector<TemperatureSample> m_details;
+
+  // Luu duong dan hwmon asus de set PWM sau khi da phat hien o refreshSensors.
+  QString m_asusHwmonPath;
 };
 
 #endif  // FANS_CONTROLLER_TUF_GAMING_FX705GE_H

@@ -41,3 +41,4 @@
 *.dwo
 
 device-check/*.txt
+build/

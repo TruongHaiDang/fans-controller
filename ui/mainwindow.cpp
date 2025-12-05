@@ -12,6 +12,7 @@
 #include <QRect>
 #include <QScreen>
 #include <QShowEvent>
+#include <QScrollArea>
 #include <QStringList>
 #include <QSize>
 #include <QVBoxLayout>
@@ -177,13 +178,32 @@ QWidget *MainWindow::createTrendAndDetailsRow() {
   detailTitle->setObjectName("sectionTitle");
   detailLayout->addWidget(detailTitle);
 
+  // Scroll area de xem nhieu dong nhiet do neu danh sach dai.
+  QScrollArea *scroll = new QScrollArea(detailCard);
+  scroll->setWidgetResizable(true);
+  scroll->setFrameShape(QFrame::NoFrame);
+  scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  scroll->setObjectName("detailScroll");
+
+  QWidget *scrollContent = new QWidget(scroll);
+  scrollContent->setObjectName("detailList");
+  scroll->viewport()->setObjectName("detailViewport");
+  QVBoxLayout *listLayout = new QVBoxLayout(scrollContent);
+  listLayout->setContentsMargins(0, 0, 0, 0);
+  listLayout->setSpacing(10);
+
   const auto detailTemps = m_device.detailTemperatures();
   for (const auto &sample : detailTemps) {
     const QString severity = temperatureSeverity(sample.celsius);
-    detailLayout->addWidget(
+    listLayout->addWidget(
         createDetailLine(sample.label, formatTemperature(sample.celsius), severity));
   }
-  detailLayout->addStretch(1);
+  listLayout->addStretch(1);
+
+  scrollContent->setLayout(listLayout);
+  scroll->setWidget(scrollContent);
+  detailLayout->addWidget(scroll);
 
   layout->addWidget(chartCard, 2);
   layout->addWidget(detailCard, 1);
