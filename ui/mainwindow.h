@@ -6,6 +6,23 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QSlider>
+#include <QComboBox>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QRect>
+#include <QScreen>
+#include <QShowEvent>
+#include <QScrollArea>
+#include <QStringList>
+#include <QSize>
+#include <QVBoxLayout>
+#include <QtGlobal>
 
 #include "main.h"
 #include "tuf_gaming_fx705ge.h"

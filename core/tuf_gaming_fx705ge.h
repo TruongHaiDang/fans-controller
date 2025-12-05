@@ -3,6 +3,13 @@
 
 #include <QString>
 #include <QVector>
+#include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QIODevice>
+#include <QStringList>
+#include <QtGlobal>
+#include <algorithm>
 
 // Doc thong tin sensor va dieu khien quat cho ASUS TUF Gaming FX705GE
 // thong qua cac file sysfs (hwmon/pwm) ma script asus_fan_report.sh da phat hien.

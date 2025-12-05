@@ -1,7 +1,4 @@
-#include <QApplication>
-
 #include "main.h"
-#include "mainwindow.h"
 
 int main(int argc, char *argv[]) {
   // Khoi tao QApplication (bat buoc cho ung dung Qt Widgets).

@@ -1,14 +1,5 @@
 #include "tuf_gaming_fx705ge.h"
 
-#include <QByteArray>
-#include <QDir>
-#include <QFile>
-#include <QIODevice>
-#include <QStringList>
-#include <QtGlobal>
-
-#include <algorithm>
-
 namespace {
 // Ten file thuong dung cho hwmon ASUS tren FX705GE (tham khao file report).
 const QString kHwmonBase = "/sys/class/hwmon";

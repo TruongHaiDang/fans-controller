@@ -1,23 +1,5 @@
 #include "mainwindow.h"
 
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QGuiApplication>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QRect>
-#include <QScreen>
-#include <QShowEvent>
-#include <QScrollArea>
-#include <QStringList>
-#include <QSize>
-#include <QVBoxLayout>
-#include <QtGlobal>
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   // Cap nhat cache sensor truoc khi ve UI, sau do nap stylesheet.
   m_device.refreshSensors();
