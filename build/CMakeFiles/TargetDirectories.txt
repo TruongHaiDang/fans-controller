@@ -1,0 +1,5 @@
+/home/haidang/Documents/github/fans-controller/build/CMakeFiles/FansController.dir
+/home/haidang/Documents/github/fans-controller/build/CMakeFiles/edit_cache.dir
+/home/haidang/Documents/github/fans-controller/build/CMakeFiles/rebuild_cache.dir
+/home/haidang/Documents/github/fans-controller/build/CMakeFiles/FansController_autogen_timestamp_deps.dir
+/home/haidang/Documents/github/fans-controller/build/CMakeFiles/FansController_autogen.dir

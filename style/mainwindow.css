@@ -1,0 +1,274 @@
+/* Tong the: nen xanh toi, font hien dai, bo goc mem theo phong cach tham khao. */
+QMainWindow {
+    background-color: #0e1922;
+    color: #d7e2ec;
+    font-family: "Segoe UI", "Noto Sans", sans-serif;
+}
+
+QWidget {
+    color: #d7e2ec;
+    font-size: 14px;
+}
+
+/* ===== Header ===== */
+QLabel#titleLabel {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e8f0f7;
+}
+
+QLabel#subtitleLabel {
+    font-size: 14px;
+    color: #9ab3c7;
+    max-width: 900px;
+}
+
+/* ===== Thong ke nhanh ===== */
+QFrame#statCard {
+    background: #0f1c28;
+    border: 1px solid #1c2b3a;
+    border-radius: 12px;
+}
+
+QFrame#statCard[accent="warning"] {
+    border-color: #3a2a1a;
+}
+
+QFrame#statCard[accent="ok"] {
+    border-color: #1c352c;
+}
+
+QFrame#statCard[accent="info"] {
+    border-color: #1d2f3f;
+}
+
+QLabel#statIcon {
+    min-width: 44px;
+    min-height: 44px;
+    max-width: 44px;
+    max-height: 44px;
+    border-radius: 10px;
+    border: 1px solid #213448;
+    background: #122234;
+    font-weight: 700;
+    color: #d7e2ec;
+}
+
+QLabel#statIcon[accent="warning"] {
+    background: #2b1e14;
+    border-color: #f57f32;
+    color: #f7a764;
+}
+
+QLabel#statIcon[accent="ok"] {
+    background: #143023;
+    border-color: #2faa79;
+    color: #7ee0a9;
+}
+
+QLabel#statIcon[accent="info"] {
+    background: #123048;
+    border-color: #2a78c6;
+    color: #6ab5ff;
+}
+
+QLabel#statTitle {
+    font-size: 14px;
+    color: #a7bbcd;
+}
+
+QLabel#statValue {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+QLabel#statValue[accent="warning"] {
+    color: #f57f32;
+}
+
+QLabel#statValue[accent="ok"] {
+    color: #3fc57a;
+}
+
+QLabel#statValue[accent="info"] {
+    color: #2ea4ff;
+}
+
+QLabel#statStatus {
+    font-size: 13px;
+    color: #7f95a9;
+}
+
+/* ===== The noi dung ===== */
+QFrame#chartCard,
+QFrame#detailCard,
+QFrame#sectionCard {
+    background: #0f1c28;
+    border: 1px solid #1c2b3a;
+    border-radius: 12px;
+}
+
+QLabel#sectionTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e2ecf5;
+}
+
+QLabel#sectionSubtitle {
+    font-size: 13px;
+    color: #8ea5b9;
+}
+
+QFrame#chartArea {
+    background: #152334;
+    border: 1px dashed #23354a;
+    border-radius: 10px;
+    min-height: 240px;
+}
+
+QLabel#placeholderLabel {
+    color: #4f6780;
+    font-size: 14px;
+}
+
+QLabel#detailLabel {
+    color: #c9d7e4;
+    font-weight: 600;
+}
+
+QLabel#pill {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+QLabel#pill[severity="warning"] {
+    background: #2b1e14;
+    border-color: #f58a39;
+    color: #f6aa65;
+}
+
+QLabel#pill[severity="caution"] {
+    background: #2b2312;
+    border-color: #e0a235;
+    color: #f4c05d;
+}
+
+QLabel#pill[severity="info"] {
+    background: #122c3f;
+    border-color: #3986d6;
+    color: #8dc7ff;
+}
+
+QLabel#pill[severity="cool"] {
+    background: #0f2e2b;
+    border-color: #1eb59d;
+    color: #7de1d0;
+}
+
+/* ===== Nut che do quat ===== */
+QPushButton#modeButton {
+    background: #111f2c;
+    border: 1px solid #1f2e3d;
+    color: #c8d8e8;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: 600;
+}
+
+QPushButton#modeButton:hover {
+    border-color: #2d4360;
+}
+
+QPushButton#modeButton:checked {
+    background: #1c4f7a;
+    border-color: #3c7fbc;
+    color: #e9f3fb;
+}
+
+/* ===== ComboBox va nhan input ===== */
+QLabel#inputLabel {
+    color: #a7bbcd;
+    font-weight: 600;
+}
+
+QComboBox#profileCombo {
+    background: #0f1d2a;
+    border: 1px solid #233446;
+    color: #d7e2ec;
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-width: 180px;
+}
+
+QComboBox#profileCombo::drop-down {
+    width: 26px;
+    border-left: 1px solid #233446;
+    background: #122435;
+}
+
+QComboBox#profileCombo::down-arrow {
+    image: none;
+    width: 0;
+    height: 0;
+}
+
+/* ===== Button phong cach ===== */
+QPushButton#primaryButton {
+    background: #4094f4;
+    border: 1px solid #58a5f8;
+    color: #f3f8ff;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 700;
+}
+
+QPushButton#primaryButton:hover {
+    background: #4fa2ff;
+}
+
+QPushButton#primaryButton:pressed {
+    background: #2c7cd6;
+}
+
+QPushButton#ghostButton {
+    background: #0f1d2a;
+    border: 1px solid #2b3d50;
+    color: #d7e2ec;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 600;
+}
+
+QPushButton#ghostButton:hover {
+    border-color: #3c5571;
+}
+
+/* ===== Slider ===== */
+QSlider#speedSlider::groove:horizontal {
+    border: 1px solid #203142;
+    height: 10px;
+    background: #122234;
+    border-radius: 6px;
+}
+
+QSlider#speedSlider::sub-page:horizontal {
+    background: #4094f4;
+    border: 1px solid #58a5f8;
+    border-radius: 6px;
+}
+
+QSlider#speedSlider::handle:horizontal {
+    background: #f3f8ff;
+    border: 1px solid #58a5f8;
+    width: 18px;
+    margin: -5px 0;
+    border-radius: 9px;
+}
+
+/* ===== Link nhan ===== */
+QLabel#linkLabel {
+    color: #4fa2ff;
+    font-weight: 700;
+}
