@@ -16,6 +16,7 @@ TufGamingFx705ge::TufGamingFx705ge() {
 
 bool TufGamingFx705ge::refreshSensors() {
   // Thu doc thuc te; neu that bai thi mock 0.0 de khong gay nham lan.
+  m_lastError.clear();
   loadFromSysfs();
   return true;
 }
@@ -38,6 +39,7 @@ QVector<TufGamingFx705ge::TemperatureSample> TufGamingFx705ge::detailTemperature
 
 bool TufGamingFx705ge::setFixedFanPercent(int percent) {
   const int clamped = std::clamp(percent, 0, 100);
+  m_lastError.clear();
 
   // Neu chua biet duong dan ASUS, co gang tim lai.
   if (m_asusHwmonPath.isEmpty()) {
@@ -48,30 +50,35 @@ bool TufGamingFx705ge::setFixedFanPercent(int percent) {
     // Khong co hwmon ASUS -> khong the dieu khien.
     m_fan.percent = clamped;
     m_fan.rpm = 0;
+    m_lastError = "Khong tim thay hwmon ASUS (asus / asus-nb-wmi).";
     return false;
   }
 
   // Dat che do manual truoc khi ghi PWM.
   if (!writePwmEnableManual(m_asusHwmonPath)) {
     m_fan.percent = clamped;
+    m_lastError = "Khong ghi duoc pwm1_enable (yeu cau quyen root hoac pwm1_enable ton tai).";
     return false;
   }
 
   const int pwmMax = readPwmMax(m_asusHwmonPath);
   if (pwmMax <= 0) {
     m_fan.percent = clamped;
+    m_lastError = "Khong doc duoc pwm1_max hop le.";
     return false;
   }
 
   const int pwmValue = static_cast<int>(clamped / 100.0 * pwmMax);
   if (!writePwmValue(m_asusHwmonPath, pwmValue)) {
     m_fan.percent = clamped;
+    m_lastError = "Khong ghi duoc pwm1 (yeu cau quyen root hoac tep khong ghi duoc).";
     return false;
   }
 
   // Cap nhat cache: doc lai rpm neu co.
   m_fan.percent = clamped;
   m_fan.rpm = readFanRpm(m_asusHwmonPath);
+  m_lastError.clear();
   return true;
 }
 
@@ -162,6 +169,7 @@ void TufGamingFx705ge::loadFromSysfs() {
   // 6) Neu thieu du lieu chinh, dung mock an toan.
   if (!anySensor) {
     loadMockData();
+    m_lastError = "Khong doc duoc sensor tu sysfs (co the thieu quyen hoac thieu hwmon).";
   }
 }
 

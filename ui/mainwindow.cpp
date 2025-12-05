@@ -1,5 +1,27 @@
 #include "mainwindow.h"
 
+#include <QAbstractButton>
+#include <QApplication>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QRect>
+#include <QScreen>
+#include <QShowEvent>
+#include <QScrollArea>
+#include <QStringList>
+#include <QSize>
+#include <QSlider>
+#include <QVBoxLayout>
+
+#include <algorithm>
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   // Cap nhat cache sensor truoc khi ve UI, sau do nap stylesheet.
   m_device.refreshSensors();
@@ -317,6 +339,7 @@ QWidget *MainWindow::createFixedSpeedRow() {
   connect(applyBtn, &QPushButton::clicked, this, [this]() {
     if (!m_device.setFixedFanPercent(m_fixedSpeedSlider->value())) {
       qWarning("Khong the dat toc do quat co dinh");
+      showPwmErrorDialog("Cannot set fixed fan speed");
     }
   });
 
@@ -368,6 +391,7 @@ void MainWindow::applyPresetPercent(int percent) {
   const bool ok = m_device.setFixedFanPercent(clamped);
   if (!ok) {
     qWarning("Khong the dat toc do quat preset");
+    showPwmErrorDialog("Cannot set fan preset");
   }
 
   if (m_fixedSpeedValueLabel) {
@@ -506,4 +530,23 @@ QString MainWindow::accentForStat(const QString &severity) const {
     return "info";
   }
   return "ok";
+}
+
+void MainWindow::showPwmErrorDialog(const QString &title) {
+  // Thong bao loi PWM chi mot lan de tranh lam phien nguoi dung.
+  if (m_shownPwmErrorDialog) {
+    return;
+  }
+  m_shownPwmErrorDialog = true;
+
+  const QString detail =
+      m_device.lastError().isEmpty()
+          ? "Kiem tra quyen truy cap /sys/class/hwmon/*/pwm1 va pwm1_enable (can sudo/root)."
+          : m_device.lastError();
+
+  QMessageBox::warning(
+      this, title,
+      QString("Khong the ghi gia tri PWM cho quat.\n\nLy do: %1\n\nThu chay ung dung "
+              "voi quyen root/sudo hoac dat permission/phc cap quyen ghi vao pwm1.")
+          .arg(detail));
 }

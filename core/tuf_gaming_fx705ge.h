@@ -44,6 +44,9 @@ class TufGamingFx705ge {
   // Ap dung preset ("Silent", "Performance", "Turbo", "Custom"...).
   bool applyPresetMode(const QString &presetName);
 
+  // Tra ve chuoi loi gan nhat (neu co) de hien thi cho nguoi dung.
+  QString lastError() const { return m_lastError; }
+
  private:
   // Doc tu sysfs; neu that bai thi tra ve 0 an toan.
   void loadFromSysfs();
@@ -68,6 +71,7 @@ class TufGamingFx705ge {
 
   // Luu duong dan hwmon asus de set PWM sau khi da phat hien o refreshSensors.
   QString m_asusHwmonPath;
+  QString m_lastError;
 };
 
 #endif  // FANS_CONTROLLER_TUF_GAMING_FX705GE_H

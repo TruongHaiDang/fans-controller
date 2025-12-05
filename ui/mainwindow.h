@@ -77,6 +77,7 @@ class MainWindow : public QMainWindow {
   QString temperatureSeverity(double tempC) const;
   QString statusTextForSeverity(const QString &severity) const;
   QString accentForStat(const QString &severity) const;
+  void showPwmErrorDialog(const QString &title);
 
   // Trang thai noi bo.
   bool m_hasCentered = false;            // Dam bao chi can giua mot lan khi hien.
@@ -84,6 +85,7 @@ class MainWindow : public QMainWindow {
   QSlider *m_fixedSpeedSlider = nullptr;     // Dieu khien toc do co dinh.
   QButtonGroup *m_modeGroup = nullptr;       // Nhom nut chon che do quat.
   bool m_updatingFromPreset = false;         // Co de bo qua set Custom khi set bang code.
+  bool m_shownPwmErrorDialog = false;        // Chi hien canh bao quyen PWM mot lan.
 
   // Lop doc sensor/dieu khien quat tach rieng ra core/.
   TufGamingFx705ge m_device;
