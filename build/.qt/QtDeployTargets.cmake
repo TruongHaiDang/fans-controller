@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_FansController_FILE /home/haidang/Documents/github/fans-controller/build/FansController)
-set(__QT_DEPLOY_TARGET_FansController_TYPE EXECUTABLE)

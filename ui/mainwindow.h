@@ -8,6 +8,7 @@
 #include <QSlider>
 
 #include "main.h"
+#include "tuf_gaming_fx705ge.h"
 
 class QShowEvent;
 
@@ -45,11 +46,20 @@ class MainWindow : public QMainWindow {
   QString resolveStylePath() const;
   void centerOnScreen();
 
+  // Ham tro giup dinh dang/suy luan thong so sensor.
+  QString formatTemperature(double tempC) const;
+  QString temperatureSeverity(double tempC) const;
+  QString statusTextForSeverity(const QString &severity) const;
+  QString accentForStat(const QString &severity) const;
+
   // Trang thai noi bo.
   bool m_hasCentered = false;            // Dam bao chi can giua mot lan khi hien.
   QLabel *m_fixedSpeedValueLabel = nullptr;  // Hien thi % cua slider.
   QSlider *m_fixedSpeedSlider = nullptr;     // Dieu khien toc do co dinh.
   QButtonGroup *m_modeGroup = nullptr;       // Nhom nut chon che do quat.
+
+  // Lop doc sensor/dieu khien quat tach rieng ra core/.
+  TufGamingFx705ge m_device;
 };
 
 #endif  // FANS_CONTROLLER_MAINWINDOW_H

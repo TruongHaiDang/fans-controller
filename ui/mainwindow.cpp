@@ -2,6 +2,7 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>
@@ -14,16 +15,18 @@
 #include <QStringList>
 #include <QSize>
 #include <QVBoxLayout>
+#include <QtGlobal>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-  // Tao UI va nap stylesheet ngay khi khoi tao.
+  // Cap nhat cache sensor truoc khi ve UI, sau do nap stylesheet.
+  m_device.refreshSensors();
   buildUi();
   applyStyleSheet();
 }
 
 void MainWindow::buildUi() {
   // Thiet lap cua so co nen toi, kich co khac phuc va margin dong deu.
-  setMinimumSize(1120, 960);
+  setMinimumSize(1120, 890);
   QWidget *central = new QWidget(this);
   QVBoxLayout *rootLayout = new QVBoxLayout(central);
   rootLayout->setContentsMargins(20, 20, 20, 20);
@@ -33,7 +36,6 @@ void MainWindow::buildUi() {
   rootLayout->addWidget(createStatsRow());
   rootLayout->addWidget(createTrendAndDetailsRow());
   rootLayout->addWidget(createFanModeRow());
-  rootLayout->addWidget(createProfilesRow());
   rootLayout->addWidget(createFixedSpeedRow());
   rootLayout->addStretch(1);  // Day cac phan len tren, tao khoang thoang duoi.
 
@@ -46,16 +48,18 @@ QWidget *MainWindow::createHeader() {
   QVBoxLayout *layout = new QVBoxLayout(container);
   layout->setContentsMargins(0, 0, 0, 8);
   layout->setSpacing(6);
+  layout->setAlignment(Qt::AlignHCenter);  // Can giua ca tieu de va phan mo ta.
 
   QLabel *title = new QLabel("Fan Monitoring & Control", container);
   title->setObjectName("titleLabel");
   title->setAlignment(Qt::AlignHCenter);
 
   QLabel *subtitle =
-      new QLabel("A unified dashboard for real-time sensor data and comprehensive fan control for your ASUS TUF laptop.",
+      new QLabel("Software used to control a laptop's fan.",
                  container);
   subtitle->setWordWrap(true);
   subtitle->setAlignment(Qt::AlignHCenter);
+  subtitle->setMaximumWidth(820);  // Gioi han be ngang de chu khong trai dai.
   subtitle->setObjectName("subtitleLabel");
 
   layout->addWidget(title);
@@ -70,9 +74,22 @@ QWidget *MainWindow::createStatsRow() {
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(12);
 
-  layout->addWidget(createStatCard("CPU", "CPU Package", "68 C", "Status: High", "warning"));
-  layout->addWidget(createStatCard("FAN", "Fan RPM", "2450", "Status: Normal", "ok"));
-  layout->addWidget(createStatCard("PCH", "PCH Temperature", "42 C", "Status: Normal", "info"));
+  // CPU Package
+  const double cpuTemp = m_device.cpuPackageTempC();
+  const QString cpuSeverity = temperatureSeverity(cpuTemp);
+  layout->addWidget(createStatCard("CPU", "CPU Package", formatTemperature(cpuTemp),
+                                   statusTextForSeverity(cpuSeverity), accentForStat(cpuSeverity)));
+
+  // Fan RPM
+  const auto fan = m_device.fan();
+  layout->addWidget(createStatCard("FAN", "Fan RPM", QString::number(fan.rpm),
+                                   "Status: Normal", "ok"));
+
+  // PCH Temperature
+  const double pchTemp = m_device.pchTempC();
+  const QString pchSeverity = temperatureSeverity(pchTemp);
+  layout->addWidget(createStatCard("PCH", "PCH Temperature", formatTemperature(pchTemp),
+                                   statusTextForSeverity(pchSeverity), accentForStat(pchSeverity)));
 
   return row;
 }
@@ -160,12 +177,12 @@ QWidget *MainWindow::createTrendAndDetailsRow() {
   detailTitle->setObjectName("sectionTitle");
   detailLayout->addWidget(detailTitle);
 
-  detailLayout->addWidget(createDetailLine("CPU Core 1", "67 C", "warning"));
-  detailLayout->addWidget(createDetailLine("CPU Core 2", "69 C", "warning"));
-  detailLayout->addWidget(createDetailLine("NVMe Drive", "38 C", "cool"));
-  detailLayout->addWidget(createDetailLine("PCH", "42 C", "info"));
-  detailLayout->addWidget(createDetailLine("ACPI Zone 1", "55 C", "caution"));
-  detailLayout->addWidget(createDetailLine("ACPI Zone 2", "45 C", "info"));
+  const auto detailTemps = m_device.detailTemperatures();
+  for (const auto &sample : detailTemps) {
+    const QString severity = temperatureSeverity(sample.celsius);
+    detailLayout->addWidget(
+        createDetailLine(sample.label, formatTemperature(sample.celsius), severity));
+  }
   detailLayout->addStretch(1);
 
   layout->addWidget(chartCard, 2);
@@ -237,55 +254,6 @@ QWidget *MainWindow::createFanModeRow() {
   return card;
 }
 
-QWidget *MainWindow::createProfilesRow() {
-  // Khu vuc quan ly profile luu san va nut thao tac.
-  QFrame *card = new QFrame(this);
-  card->setObjectName("sectionCard");
-  QVBoxLayout *layout = new QVBoxLayout(card);
-  layout->setContentsMargins(14, 14, 14, 14);
-  layout->setSpacing(12);
-
-  QLabel *title = new QLabel("Fan Profiles", card);
-  title->setObjectName("sectionTitle");
-  QLabel *subtitle = new QLabel("Save, load, and manage your custom fan settings.", card);
-  subtitle->setObjectName("sectionSubtitle");
-
-  layout->addWidget(title);
-  layout->addWidget(subtitle);
-
-  QWidget *row = new QWidget(card);
-  QHBoxLayout *rowLayout = new QHBoxLayout(row);
-  rowLayout->setContentsMargins(0, 0, 0, 0);
-  rowLayout->setSpacing(10);
-
-  QLabel *selectLabel = new QLabel("Select Profile", row);
-  selectLabel->setObjectName("inputLabel");
-
-  QComboBox *combo = new QComboBox(row);
-  combo->addItems({"Gaming*", "Silent", "Performance"});
-  combo->setObjectName("profileCombo");
-
-  // Nhom nut thao tac: Apply, Save, Delete.
-  QPushButton *applyBtn = new QPushButton("Apply", row);
-  applyBtn->setObjectName("primaryButton");
-
-  QPushButton *saveBtn = new QPushButton("Save", row);
-  saveBtn->setObjectName("ghostButton");
-
-  QPushButton *deleteBtn = new QPushButton("Delete", row);
-  deleteBtn->setObjectName("ghostButton");
-
-  rowLayout->addWidget(selectLabel);
-  rowLayout->addWidget(combo, 1);
-  rowLayout->addStretch(1);
-  rowLayout->addWidget(saveBtn);
-  rowLayout->addWidget(deleteBtn);
-  rowLayout->addWidget(applyBtn);
-
-  layout->addWidget(row);
-  return card;
-}
-
 QWidget *MainWindow::createFixedSpeedRow() {
   // Khu vuc dieu khien toc do co dinh bang slider.
   QFrame *card = new QFrame(this);
@@ -319,7 +287,7 @@ QWidget *MainWindow::createFixedSpeedRow() {
 
   m_fixedSpeedSlider = new QSlider(Qt::Horizontal, controlRow);
   m_fixedSpeedSlider->setRange(0, 100);
-  m_fixedSpeedSlider->setValue(65);
+  m_fixedSpeedSlider->setValue(m_device.fan().percent);
   m_fixedSpeedSlider->setObjectName("speedSlider");
 
   // Cap nhat nhan % khi keo slider.
@@ -334,6 +302,16 @@ QWidget *MainWindow::createFixedSpeedRow() {
 
   controlLayout->addWidget(m_fixedSpeedSlider, 1);
   controlLayout->addWidget(applyBtn);
+
+  // Dat preset "Performance" theo du lieu gia lap va cap nhat slider.
+  connect(applyBtn, &QPushButton::clicked, this, [this]() {
+    if (!m_device.setFixedFanPercent(m_fixedSpeedSlider->value())) {
+      qWarning("Khong the dat toc do quat co dinh");
+    }
+  });
+
+  // Dat gia tri ban dau theo cache sensor.
+  m_fixedSpeedValueLabel->setText(QString::number(m_device.fan().percent) + "%");
 
   layout->addWidget(header);
   layout->addWidget(subtitle);
@@ -399,4 +377,48 @@ void MainWindow::showEvent(QShowEvent *event) {
     centerOnScreen();
     m_hasCentered = true;
   }
+}
+
+QString MainWindow::formatTemperature(double tempC) const {
+  // Dinh dang nhiet do lam tron va them ky hieu do.
+  return QString::number(qRound(tempC)) + QChar(0x00B0) + "C";
+}
+
+QString MainWindow::temperatureSeverity(double tempC) const {
+  // Phan loai nhiet do de to mau UI.
+  if (tempC >= 70.0) {
+    return "warning";
+  }
+  if (tempC >= 55.0) {
+    return "caution";
+  }
+  if (tempC >= 40.0) {
+    return "info";
+  }
+  return "cool";
+}
+
+QString MainWindow::statusTextForSeverity(const QString &severity) const {
+  // Tra ve chu thich trang thai tu muc do nhiet.
+  if (severity == "warning") {
+    return "Status: High";
+  }
+  if (severity == "caution") {
+    return "Status: Elevated";
+  }
+  if (severity == "info") {
+    return "Status: Normal";
+  }
+  return "Status: Cool";
+}
+
+QString MainWindow::accentForStat(const QString &severity) const {
+  // Map severity sang accent de tiep tuc dung style card san co.
+  if (severity == "warning" || severity == "caution") {
+    return "warning";
+  }
+  if (severity == "info") {
+    return "info";
+  }
+  return "ok";
 }

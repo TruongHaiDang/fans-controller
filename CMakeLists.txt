@@ -15,11 +15,13 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
     src/main.cpp
     ui/mainwindow.cpp
+    core/tuf_gaming_fx705ge.cpp
 )
 
 set(PROJECT_HEADERS
     inc/main.h
     ui/mainwindow.h
+    core/tuf_gaming_fx705ge.h
 )
 
 # Dua stylesheet vao target de viec cai dat/phan phoi giu duoc file kieu dang.
@@ -36,6 +38,7 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/core
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

@@ -141,6 +141,7 @@ QLabel#pill {
     border-radius: 8px;
     font-weight: 700;
     border: 1px solid transparent;
+    min-height: 16px;
 }
 
 QLabel#pill[severity="warning"] {
