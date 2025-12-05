@@ -241,6 +241,7 @@ QWidget *MainWindow::createFanModeRow() {
   m_modeGroup->setExclusive(true);
 
   const QStringList modes = {"Silent", "Performance", "Turbo", "Custom"};
+  int modeId = 0;
   for (const QString &mode : modes) {
     QPushButton *modeButton = new QPushButton(mode, buttonRow);
     modeButton->setCheckable(true);
@@ -248,9 +249,13 @@ QWidget *MainWindow::createFanModeRow() {
     if (mode == "Performance") {
       modeButton->setChecked(true);  // Dat mac dinh theo hinh mau.
     }
-    m_modeGroup->addButton(modeButton);
+    m_modeGroup->addButton(modeButton, modeId++);
     buttonLayout->addWidget(modeButton);
   }
+
+  // Ap dung preset khi chon che do.
+  connect(m_modeGroup, QOverload<int>::of(&QButtonGroup::idClicked), this,
+          &MainWindow::handleModeSelected);
 
   layout->addWidget(buttonRow);
   return card;
@@ -297,6 +302,9 @@ QWidget *MainWindow::createFixedSpeedRow() {
     if (m_fixedSpeedValueLabel) {
       m_fixedSpeedValueLabel->setText(QString::number(value) + "%");
     }
+    if (!m_updatingFromPreset) {
+      selectModeButton("Custom");
+    }
   });
 
   QPushButton *applyBtn = new QPushButton("Apply", controlRow);
@@ -305,7 +313,7 @@ QWidget *MainWindow::createFixedSpeedRow() {
   controlLayout->addWidget(m_fixedSpeedSlider, 1);
   controlLayout->addWidget(applyBtn);
 
-  // Dat preset "Performance" theo du lieu gia lap va cap nhat slider.
+  // Ap dung gia tri slider hien tai xuong thiet bi.
   connect(applyBtn, &QPushButton::clicked, this, [this]() {
     if (!m_device.setFixedFanPercent(m_fixedSpeedSlider->value())) {
       qWarning("Khong the dat toc do quat co dinh");
@@ -314,12 +322,87 @@ QWidget *MainWindow::createFixedSpeedRow() {
 
   // Dat gia tri ban dau theo cache sensor.
   m_fixedSpeedValueLabel->setText(QString::number(m_device.fan().percent) + "%");
+  syncModeButtonForPercent(m_fixedSpeedSlider->value());
 
   layout->addWidget(header);
   layout->addWidget(subtitle);
   layout->addWidget(controlRow);
 
   return card;
+}
+
+// Xu ly su kien nguoi dung chon mot preset o cum Fan Mode, dat PWM tuong ung
+// va dong bo thanh slider.
+void MainWindow::handleModeSelected(int buttonId) {
+  QAbstractButton *button = m_modeGroup ? m_modeGroup->button(buttonId) : nullptr;
+  if (!button) {
+    return;
+  }
+
+  const QString modeName = button->text();
+  int targetPercent = -1;
+  if (modeName.compare("Silent", Qt::CaseInsensitive) == 0) {
+    targetPercent = 0;
+  } else if (modeName.compare("Performance", Qt::CaseInsensitive) == 0) {
+    targetPercent = 50;
+  } else if (modeName.compare("Turbo", Qt::CaseInsensitive) == 0) {
+    targetPercent = 100;
+  }
+
+  if (targetPercent < 0) {
+    return;  // Custom: khong ep gia tri slider hay PWM.
+  }
+
+  m_updatingFromPreset = true;
+  if (m_fixedSpeedSlider) {
+    m_fixedSpeedSlider->setValue(targetPercent);
+  }
+  m_updatingFromPreset = false;
+
+  applyPresetPercent(targetPercent);
+}
+
+// Goi vao lop thiet bi de dat phan tram PWM, dong thoi cap nhat nhan hien thi.
+void MainWindow::applyPresetPercent(int percent) {
+  const int clamped = std::clamp(percent, 0, 100);
+  const bool ok = m_device.setFixedFanPercent(clamped);
+  if (!ok) {
+    qWarning("Khong the dat toc do quat preset");
+  }
+
+  if (m_fixedSpeedValueLabel) {
+    m_fixedSpeedValueLabel->setText(QString::number(clamped) + "%");
+  }
+}
+
+// Dat lai nut preset theo gia tri % hien co (0, 50, 100 thi map preset, khac se
+// chon Custom).
+void MainWindow::syncModeButtonForPercent(int percent) {
+  if (percent == 0) {
+    selectModeButton("Silent");
+  } else if (percent == 50) {
+    selectModeButton("Performance");
+  } else if (percent == 100) {
+    selectModeButton("Turbo");
+  } else {
+    selectModeButton("Custom");
+  }
+}
+
+// Chon mot nut preset theo ten, chan phat sinh tin hieu khong mong muon tu
+// QButtonGroup.
+void MainWindow::selectModeButton(const QString &modeName) {
+  if (!m_modeGroup) {
+    return;
+  }
+
+  for (QAbstractButton *button : m_modeGroup->buttons()) {
+    if (button && button->text().compare(modeName, Qt::CaseSensitive) == 0) {
+      QSignalBlocker blocker(m_modeGroup);
+      button->setChecked(true);
+      return;
+    }
+  }
 }
 
 void MainWindow::applyStyleSheet() {
